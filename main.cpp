@@ -6,13 +6,32 @@
 #include "inputs.h"
 #include "fonts.h"
 #include "tui.h"
+#include "audio.h"
 
 
 const int INTERVAL_TIME = 1;
 std::string g_time_text;  // stores time to be printed in hh::mm:ss format
 
-int main() {
+int main(int argc, char *argv[]) {
     
+    // SETUP ALARM
+    switch (argc) {
+        case 1:     // DEFAULT USAGE
+            break;
+        case 2:     // CUSTOM ALARM
+            alarm_file = std::string("alarms/") + argv[1];
+            break;
+        default:    // INVALID USAGE
+            std::cout << "Usage: " << argv[0] << "[alarm_name]\n";
+            return 1;
+    }
+
+    if (initialize_audio()){
+        std::cout << "Unable to find alarm.\n"
+                  << "\t1. Make sure it is in alarms/ folder\n"
+                  << "\t2. Include the file extension\n";
+    }
+
     // SETUP TUI
     TuiConfig tuicfg;
 
@@ -69,6 +88,8 @@ int main() {
         std::this_thread::sleep_until(now += interval);
     }    
 
-    std::cout << "Done!\a\a\a\a\n";
+    std::cout << "Done!";
+    play_sound();
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 }
 
